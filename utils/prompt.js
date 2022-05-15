@@ -22,10 +22,11 @@ class Prompt {
         throw err;
       }
 
-      rows.forEach((row) => departmentArray.push(row.title));
+      rows.forEach((row) => departmentArray.push(row.name));
 
-      return departmentArray;
     });
+    return departmentArray;
+
   }
 
   displayDepartment() {
@@ -94,7 +95,7 @@ class Prompt {
       ])
       .then((response) => {
         const sql = `INSERT INTO role (title,salary, department_id) VALUES (?,?,?)`;
-        const indexDepartment = this.getDepartments().indexOf(response.title);
+        const indexDepartment = this.getDepartments().indexOf(response.department);
         const params = [response.role, response.salary, indexDepartment];
 
         db.query(sql, params, (err, data) => {
