@@ -94,8 +94,8 @@ class Prompt {
         },
       ])
       .then((response) => {
-        const sql = `INSERT INTO role (title,salary, department_id) VALUES (?,?,?)`;
-        const indexDepartment = this.getDepartments().indexOf(response.department);
+        const sql = `INSERT INTO role (title,salary,department_id) VALUES (?,?,?)`;
+        const indexDepartment = this.getDepartments().indexOf(response.department) +2;
         const params = [response.role, response.salary, indexDepartment];
 
         db.query(sql, params, (err, data) => {
