@@ -4,7 +4,7 @@ const cTable = require("console.table");
 const db = require("../db/connection");
 class Prompt {
   displayEmployees() {
-    const sql = `SELECT * FROM employee`;
+    const sql = `SELECT employee.first_name, employee.last_name, role.title, department.name, role.salary FROM employee, role, department WHERE department.id=role.department_id AND role.id = employee.role_id`;
     db.query(sql, (err, rows) => {
       if (err) {
         throw err;
