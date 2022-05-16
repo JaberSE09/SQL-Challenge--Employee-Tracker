@@ -9,8 +9,8 @@ VALUES
 INSERT INTO role (title , salary , department_id)
 VALUES 
 ("Manager" , 30000 , 1),
-("Manager" , 30000 , 2),
-("Manager" , 30000 , 3);
+("Lead Enginereer" , 30000 , 2),
+("Lawyer" , 30000 , 3);
 
 INSERT INTO employee (first_name , last_name , manager_id, role_id)
 VALUES

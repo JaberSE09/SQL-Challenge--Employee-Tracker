@@ -17,16 +17,14 @@ class Prompt {
   getDepartments() {
     let departmentArray = [];
     const sql = `SELECT * FROM department`;
-    const departments = db.query(sql, (err, rows) => {
+    db.query(sql, (err, rows) => {
       if (err) {
         throw err;
       }
 
       rows.forEach((row) => departmentArray.push(row.name));
-
     });
     return departmentArray;
-
   }
 
   displayDepartment() {
@@ -41,7 +39,7 @@ class Prompt {
   }
 
   displayRole() {
-    const sql = `SELECT * FROM role`;
+    const sql = `SELECT role.title, role.salary, department.name FROM role  INNER JOIN department ON department_id = department.id;`;
     db.query(sql, (err, rows) => {
       if (err) {
         throw err;
@@ -74,6 +72,16 @@ class Prompt {
   }
 
   addARole() {
+    let departmentsArray = [];
+    const sqlSelect = `SELECT * FROM department`;
+    db.query(sqlSelect, (err, rows) => {
+      if (err) {
+        throw err;
+      }
+
+      rows.forEach((row) => departmentsArray.push(row.name));
+    });
+
     inquirer
       .prompt([
         {
@@ -95,7 +103,15 @@ class Prompt {
       ])
       .then((response) => {
         const sql = `INSERT INTO role (title,salary,department_id) VALUES (?,?,?)`;
-        const indexDepartment = this.getDepartments().indexOf(response.department) +2;
+
+        let indexDepartment;
+        for (let i = 0; i < departmentsArray.length; i++) {
+          if (departmentsArray[i] == response.department) {
+            indexDepartment = i + 1;
+            break;
+          }
+        }
+
         const params = [response.role, response.salary, indexDepartment];
 
         db.query(sql, params, (err, data) => {
