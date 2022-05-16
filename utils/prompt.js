@@ -4,11 +4,16 @@ const cTable = require("console.table");
 const db = require("../db/connection");
 class Prompt {
   displayEmployees() {
-    const sql = `SELECT employee.first_name, employee.last_name, role.title, department.name, role.salary FROM employee, role, department WHERE department.id=role.department_id AND role.id = employee.role_id`;
+
+
+
+
+    const sql = `SELECT employee.first_name, employee.last_name, role.title, department.name, role.salary, employee2.first_name AS Manager FROM employee, role, department, employee AS employee2  WHERE department.id=role.department_id AND role.id = employee.role_id AND employee.manager_id= employee2.id`;
     db.query(sql, (err, rows) => {
       if (err) {
         throw err;
       }
+      
 
       console.table(rows);
     });
