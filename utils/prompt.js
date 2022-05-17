@@ -133,7 +133,7 @@ class Prompt {
         });
       });
   }
-  getManager() {
+  getEmployees() {
     let managerArray = [];
     const sql = `SELECT first_name FROM employee`;
     db.query(sql, (err, rows) => {
@@ -146,8 +146,6 @@ class Prompt {
   }
 
   addAEmployee() {
-    const roles = this.getRole();
-    const managers = this.getManager();
     inquirer
       .prompt([
         {
@@ -170,7 +168,7 @@ class Prompt {
           type: "list",
           name: "manager",
           message: "What is the employee role?",
-          choices: this.getManager(),
+          choices: this.getEmployees(),
         },
       ])
       .then((response) => {
@@ -205,12 +203,37 @@ class Prompt {
           }
 
           console.log(`${response.first_name} Created`);
-      this.startPrompt();
-
+          this.startPrompt();
         });
-        
       });
-    }
+  }
+
+  updateAEmployee() {
+    inquirer.prompt([
+      {
+
+        type: "input",
+        name: "employee",
+        message: "What is the employee id?",
+      },
+      {
+        type: "input",
+        name: "role",
+        message: "What is the employee new id?",
+      },
+    ]).then((response) => {
+      const sql = `UPDATE employee SET role_id = ? WHERE  id = ?`;
+
+      
+      const params = [response.role, response.employee];
+
+      db.query(sql, params, (err, rows) => {
+        console.log(`${response.employee} Updated`);
+      });
+      this.startPrompt();
+   });
+  }
+
   startPrompt() {
     inquirer
       .prompt([
@@ -225,6 +248,8 @@ class Prompt {
             "Add A Department",
             "Add A Role",
             "Add A Employee",
+            "Update A Employee",
+            "Exit",
           ],
         },
       ])
@@ -250,6 +275,14 @@ class Prompt {
             break;
           case "Add A Employee":
             this.addAEmployee();
+            break;
+          case "Update A Employee":
+            this.updateAEmployee();
+            break;
+          case "Exit":
+            db.end();
+            console.log("Exited Thank You");
+
             break;
         }
       });
