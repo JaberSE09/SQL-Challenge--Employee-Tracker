@@ -31,10 +31,18 @@ node server
 
 ## Usage
 
-
-
 https://user-images.githubusercontent.com/15232220/169363183-93e7cb59-8801-48cc-95cf-55ad4bddab55.mp4
 
+The website uses the command line list choices of what you can do.
+            "View All Employees",
+            "View All Employee's By Roles",
+            "View all employee's By Departments",
+            "Add A Department",
+            "Add A Role",
+            "Add A Employee",
+            "Update A Employee",
+            "Exit",
+You choose one of the options and provide you with a command line response.
 
 ## Credits
 
