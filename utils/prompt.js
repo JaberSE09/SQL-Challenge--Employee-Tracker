@@ -1,8 +1,12 @@
+//global 
 const inquirer = require("inquirer");
 const mysql = require("mysql2");
 const cTable = require("console.table");
 const db = require("../db/connection");
+
+//prompts to run the application
 class Prompt {
+  //display the employees
   displayEmployees() {
     const sql = `SELECT employee.id, employee.first_name, employee.last_name, role.title, department.name, role.salary, employee2.first_name AS Manager FROM employee, role, department, employee AS employee2  WHERE department.id=role.department_id AND role.id = employee.role_id AND employee.manager_id= employee2.id`;
     db.query(sql, (err, rows) => {
@@ -14,6 +18,7 @@ class Prompt {
     });
   }
 
+  //gets the departments
   getDepartments() {
     let departmentArray = [];
     const sql = `SELECT * FROM department`;
@@ -26,7 +31,7 @@ class Prompt {
     });
     return departmentArray;
   }
-
+//displays the departments
   displayDepartment() {
     const sql = `SELECT * FROM department`;
     db.query(sql, (err, rows) => {
@@ -37,7 +42,7 @@ class Prompt {
       console.table(rows);
     });
   }
-
+//display the roles
   displayRole() {
     const sql = `SELECT role.title, role.salary, department.name FROM role  INNER JOIN department ON department_id = department.id;`;
     db.query(sql, (err, rows) => {
@@ -49,6 +54,7 @@ class Prompt {
     });
   }
 
+  //gets the roles
   getRole() {
     let roleArray = [];
     const sql = `SELECT title FROM role`;
@@ -60,6 +66,7 @@ class Prompt {
     });
     return roleArray;
   }
+  //add a department
   addADepartment() {
     inquirer
       .prompt([
@@ -67,6 +74,14 @@ class Prompt {
           type: "input",
           name: "name",
           message: "What is the name of department?",
+          validate: (nameInput) => {
+            if (nameInput) {
+              return true;
+            } else {
+              console.log("Please enter department name!");
+              return false;
+            }
+          },
         },
       ])
       .then((response) => {
@@ -82,6 +97,7 @@ class Prompt {
       });
   }
 
+  //adds a role
   addARole() {
     let departmentsArray = [];
     const sqlSelect = `SELECT * FROM department`;
@@ -99,11 +115,27 @@ class Prompt {
           type: "input",
           name: "role",
           message: "What is the Role?",
+          validate: (roleInput) => {
+            if (roleInput) {
+              return true;
+            } else {
+              console.log("Please enter your role!");
+              return false;
+            }
+          },
         },
         {
           type: "input",
           name: "salary",
           message: "What is the salary?",
+          validate: (numInput) => {
+            if  (numInput) {
+              return true;
+            } else {
+              console.log("Please enter salary!");
+              return false;
+            }
+          },
         },
         {
           type: "list",
@@ -133,6 +165,8 @@ class Prompt {
         });
       });
   }
+
+  //gets the employees
   getEmployees() {
     let managerArray = [];
     const sql = `SELECT first_name FROM employee`;
@@ -145,18 +179,38 @@ class Prompt {
     return managerArray;
   }
 
+  //adds a new employee
   addAEmployee() {
+    const roles = this.getRole();
+    const managers = this.getEmployees();
     inquirer
       .prompt([
         {
           type: "input",
           name: "first_name",
           message: "What is the employee first name?",
+          validate: nameInput => {
+            if (nameInput) {
+              return true;
+            } else {
+              console.log('Please enter your first name!');
+              return false;
+            }
+          }
         },
+
         {
           type: "input",
           name: "last_name",
           message: "What is the employee last name?",
+          validate: nameInput => {
+            if (nameInput) {
+              return true;
+            } else {
+              console.log('Please enter your name!');
+              return false;
+            }
+          }
         },
         {
           type: "list",
@@ -207,33 +261,48 @@ class Prompt {
         });
       });
   }
+  Employees = this.getEmployees();
+  Roles = this.getRole();
+  //updates a employees
+  updateEmployee() {
+    inquirer
+      .prompt([
+        {
+          type: "list",
+          name: "employee",
+          message: "What is the employee?",
+          choices: this.Employees,
+        },
+        {
+          type: "list",
+          name: "role",
+          message: "What is the employee role?",
+          choices: this.Roles,
+        },
+      ])
+      .then((response) => {
+        let indexRole;
+        for (let i = 0; i < this.Roles.length; i++) {
+          if (this.Roles[i] == response.role) {
+            indexRole = i + 1;
+            break;
+          }
+        }
 
-  updateAEmployee() {
-    inquirer.prompt([
-      {
+        const sql = `UPDATE employee SET role_id = ? WHERE first_name = ?`;
+        const params = [indexRole, response.employee];
 
-        type: "input",
-        name: "employee",
-        message: "What is the employee id?",
-      },
-      {
-        type: "input",
-        name: "role",
-        message: "What is the employee new id?",
-      },
-    ]).then((response) => {
-      const sql = `UPDATE employee SET role_id = ? WHERE  id = ?`;
+        db.query(sql, params, (err, rows) => {
+          if (err) throw err;
 
-      
-      const params = [response.role, response.employee];
-
-      db.query(sql, params, (err, rows) => {
-        console.log(`${response.employee} Updated`);
+          console.log(`${response.employee} role updated`);
+          this.startPrompt();
+        });
       });
-      this.startPrompt();
-   });
   }
 
+ 
+//Starts the prompt
   startPrompt() {
     inquirer
       .prompt([
@@ -277,7 +346,8 @@ class Prompt {
             this.addAEmployee();
             break;
           case "Update A Employee":
-            this.updateAEmployee();
+            //this.updateAEmployee();
+            this.updateEmployee();
             break;
           case "Exit":
             db.end();
